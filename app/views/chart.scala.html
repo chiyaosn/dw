@@ -4,17 +4,22 @@
 
 <html>
     <head>
-        <title>Welcom to Yoda console</title>
+        <title>Welcom to Yoda Data Warehouse</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/bootstrap.js")" type="text/javascript"></script>
     </head>
     <body>
-    <h2>Welcome to Yoda Console</h2>
+    <h4>Welcome to Yoda Data Warehouse</h4>
     <div>
         <span>
         <!-- iframe goes here -->
-        <iframe id="iframe1" src="@url/q?start=2013/03/21-12:00:00&end=2013/03/22-12:00:00&m=sum:xmlstats.transactions.count&o=&ylabel=TransactionCount&yrange=[0:]&wxh=1200x200&smooth=csplines&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
+        <iframe id="iframe1" src="@url/q?start=15m-ago&ignore=48&m=sum:servlet.concurrents&o=&yrange=%5B0:%5D&key=out%20center%20top%20box&wxh=1200x200&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
+            <p>Your browser does not support iframes.</p>
+        </iframe>
+        <iframe id="iframe2" src="http://10.64.8.75:4242/q?start=15m-ago&ignore=48&m=sum:servlet.concurrents&o=&yrange=%5B0:%5D&key=out%20center%20top%20box&wxh=1200x200&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
             <p>Your browser does not support iframes.</p>
         </iframe>
         </span>
