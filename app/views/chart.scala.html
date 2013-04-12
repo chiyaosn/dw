@@ -1,7 +1,6 @@
-@(query: String, queryForm: Form[Query])
+@(query: Query, queryForm: Form[Query])
 
 @import helper._
-@import helper.twitterBootstrap._
 
 <!DOCTYPE html>
 
@@ -13,31 +12,57 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/bootstrap.js")" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                jQuery(function($) {
+                    $('div.btn-group[data-toggle-name]').each(function(){
+                        var group   = $(this);
+                        var form    = group.parents('form').eq(0);
+                        var name    = group.attr('data-toggle-name');
+                        var hidden  = $('input[name="' + name + '"]', form);
+                        $('button', group).each(function(){
+                            var button = $(this);
+                            button.live('click', function(){
+                                //$("p").text(button.val());
+                                hidden.val($(this).val());
+                            });
+                            if(button.val() == hidden.val()) {
+                                button.addClass('active');
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
     </head>
     <body>
     <h2>Welcome to Yoda Data Warehouse</h2>
+    <!--p>This is a paragraph for testing.</p-->
 
+    <form action="@routes.Application.chart" method="get" class="form-inline">
+        <legend>Please specify your chart spec:</legend>
 
-    @helper.form(action = routes.Application.chart) {
+        <input class="input-xlarge" name="host" type="text" value=@query.host placeholder="host">
+        <input class="input-xlarge" name="metric" type="text" value=@query.metric placeholder="metric">
+        <div class="btn-group" data-toggle-name="timewindow" data-toggle="buttons-radio">
+            <button type="button" value="1w" class="btn">1w</button>
+            <button type="button" value="1d" class="btn">1d</button>
+            <button type="button" value="4h" class="btn">4h</button>
+            <button type="button" value="1h" class="btn active">1h</button>
+        </div>
+        <input class="input-xlarge" name="timewindow" type="text" value=@query.timewindow placeholder="timewindow" />
 
-       <fieldset>
-            <legend>Please specify your chart spec:</legend>
-            @inputText(queryForm("host"), '_label -> "Host")
-            @inputText(queryForm("metrics"), '_label -> "Metrics")
-       </fieldset>
-
-       <div class="actions">
-            <input type="submit" class="btn primary" value="get chart">
-       </div>
-    }
-
+        <label class="checkbox">
+            <input type="checkbox">Auto refresh
+        </label>
+        <button type="submit" class="btn btn-primary">Get chart</button>
+    </form>
 
     <div>
         <span>
         <!-- iframe goes here -->
-        <iframe id="iframe1" src="@query&o=&yrange=[0:]&key=out%20center%20top%20box&wxh=1200x200&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
+        <iframe id="iframe1" src="@query.GetQueryString()&yrange=[0:]&key=out%20center%20top%20box&wxh=1200x200&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
             <p>Your browser does not support iframes.</p>
-
         </iframe>
 
         <!-- examples -->
@@ -47,7 +72,7 @@
             <p>Your browser does not support iframes.</p>
         </iframe>
 
-        <iframe id="iframe2" src="http://10.64.8.75:4242/q?start=15m-ago&ignore=48&m=sum:servlet.concurrents&o=&yrange=%5B0:%5D&key=out%20center%20top%20box&wxh=1200x200&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
+        <iframe id="iframe2" src="http://10.64.8.75:4242/q?start=15m-ago&ignore=48&m=sum:servlet.concurrents&yrange=%5B0:%5D&key=out%20center%20top%20box&wxh=1200x200&png" style="width: 100%; height: 200px" scrolling="yes" marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">
             <p>Your browser does not support iframes.</p>
         </iframe>
         -->
