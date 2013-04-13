@@ -31,6 +31,8 @@ public class Application extends Controller {
     public static Result chart() {
         Form<Query> filledForm = queryForm.bindFromRequest();
         Query query = filledForm.get();
+        queryList.set(0, query);
+
         //String timewindow = "start=2013/03/21-12:00:00&end=2013/03/22-12:00:00";
 
         if(query.metric.isEmpty()) {
