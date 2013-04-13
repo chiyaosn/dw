@@ -9,17 +9,23 @@ import static play.data.Form.*;
 import views.html.*;
 import models.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Application extends Controller {
 
     final static Form<Query> queryForm = form(Query.class);
+    static List<Query> queryList = new ArrayList<Query>();
 
     public static Result index() {
         //return ok(index.render("My new application is ready."));
 
         // show default chart
-        Query query = new Query("10.64.8.75:4242", "sum:servlet.concurrents", "15m");
+        queryList.clear();
+        Query query = new Query("host1", "servlet.concurrents", "15m", false);
+        queryList.add(query);
 
-        return ok(chart.render(query, queryForm));
+        return ok(chart.render(queryList, queryForm));
     }
 
     public static Result chart() {
@@ -27,15 +33,11 @@ public class Application extends Controller {
         Query query = filledForm.get();
         //String timewindow = "start=2013/03/21-12:00:00&end=2013/03/22-12:00:00";
 
-        //String host = filledForm.field("host").valueOr("");         // e.g. 10.64.8.75:4242
-        //String metric = filledForm.field("metric").valueOr("");     // e.g. sum:servlet.concurrents
-
-        if(query.host.isEmpty() || query.metric.isEmpty()) {
-            return ok("Missing host or metrics");
+        if(query.metric.isEmpty()) {
+            return ok("Missing metric");
             // TODO
         }
 
-        //return ok(queryData.host + queryData.metric + queryData.timewindow);
-        return ok(chart.render(query, filledForm));
+        return ok(chart.render(queryList, filledForm));
     }
 }

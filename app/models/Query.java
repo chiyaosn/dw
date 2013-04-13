@@ -1,27 +1,41 @@
 package models;
 
 import javax.validation.*;
-
+import play.*;
 import play.data.validation.Constraints.*;
 
 public class Query {
-    public String host;
+    @Required
     public String metric;
-    public String timewindow;
+    public enum Aggregation {sum, avg, max, min, dev};
+    public Aggregation metricAggregation;
+    public String host;
+    public String timeWindow;
+    public Boolean autoRefresh;
 
     public Query() {
-        host = "";
         metric = "";
-        timewindow = "";
+        metricAggregation = Aggregation.avg;
+        timeWindow = "";
+        autoRefresh = false;
+        host = "";
     }
 
-    public Query(String h, String m, String tw) {
-        host = h;
+    public Query(String h, String m, String tw, Boolean ar) {
         metric = m;
-        timewindow = tw;
+        metricAggregation = Aggregation.avg;
+        timeWindow = tw;
+        autoRefresh = ar;
+        host = h;
     }
 
     public String GetQueryString() {
-        return "http://" + host + "/q?start=" + timewindow + "-ago&m=" + metric;
+        String qs = "http://" + Play.application().configuration().getString("openTSDB.host") +
+                "/q?start=" + timeWindow + "-ago&m=" + metricAggregation + ":" + metric;
+
+        if(host.isEmpty() == false)
+            qs += "{host=" + host + "}";
+
+        return qs;
     }
 }
