@@ -5,6 +5,9 @@ import play.*;
 import play.data.validation.Constraints.*;
 
 public class Query {
+
+    final static String otsdbUrl = Play.application().configuration().getString("openTSDB.host");
+
     public String metric;
     public enum Aggregation {sum, avg, max, min, dev};
     public Aggregation metricAggregation;
@@ -28,13 +31,12 @@ public class Query {
         host = h;
     }
 
-    public String getQueryString() {
-        String qs = "http://" + Play.application().configuration().getString("openTSDB.host") +
-                "/q?start=" + timeWindow + "-ago&m=" + metricAggregation + ":" + metric;
+    public final String getQueryString() {
 
-        if(host.isEmpty() == false)
-            qs += "{host=" + host + "}";
-
-        return qs;
+        return new StringBuilder("http://").append(otsdbUrl)
+                .append("/q?start=").append(timeWindow).append("-ago&m=").append(metricAggregation)
+                .append(":").append(metric)
+                .append(host.isEmpty() ? "" : "{host="+host+"}")
+                .toString();
     }
 }
