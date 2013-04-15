@@ -5,7 +5,6 @@ import play.*;
 import play.data.validation.Constraints.*;
 
 public class Query {
-    @Required
     public String metric;
     public enum Aggregation {sum, avg, max, min, dev};
     public Aggregation metricAggregation;
@@ -29,7 +28,7 @@ public class Query {
         host = h;
     }
 
-    public String GetQueryString() {
+    public String getQueryString() {
         String qs = "http://" + Play.application().configuration().getString("openTSDB.host") +
                 "/q?start=" + timeWindow + "-ago&m=" + metricAggregation + ":" + metric;
 

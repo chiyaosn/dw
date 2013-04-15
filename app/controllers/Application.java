@@ -22,8 +22,9 @@ public class Application extends Controller {
 
         // show default chart
         queryList.clear();
-        Query query = new Query("host1", "servlet.concurrents", "15m", false);
-        queryList.add(query);
+        queryList.add(new Query("host1", "servlet.concurrents", "15m", false));
+        queryList.add(new Query("host1", "servlet.transactions", "15m", false));
+        queryList.add(new Query("host1", "servlet.responseTime", "15m", false));
 
         return ok(chart.render(queryList, queryForm));
     }
@@ -33,13 +34,23 @@ public class Application extends Controller {
         Query query = filledForm.get();
         queryList.set(0, query);
 
-        //String timewindow = "start=2013/03/21-12:00:00&end=2013/03/22-12:00:00";
-
         if(query.metric.isEmpty()) {
             return ok("Missing metric");
             // TODO
         }
 
-        return ok(chart.render(queryList, filledForm));
+        return ok(chart.render(queryList, queryForm));
+    }
+
+    public static Result ajaxChart(String queryString) {
+        return ok(ajax_chart.render(queryString));
+    }
+
+    public static Result javascriptRoutes() {
+        response().setContentType("text/javascript");
+        return ok(Routes.javascriptRouter("jsRoutes",
+                // Routes
+                controllers.routes.javascript.Application.ajaxChart()
+        ));
     }
 }
