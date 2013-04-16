@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class Application extends Controller {
 
+    final static String otsdbUrl = Play.application().configuration().getString("openTSDB.host");
     final static Form<Query> queryForm = form(Query.class);
     static List<Query> queryList = new ArrayList<Query>();
     static Configuration hbaseConf = HBaseConfiguration.create();
@@ -34,7 +35,8 @@ public class Application extends Controller {
         queryList.add(new Query("host1", "servlet.transactions", "15m", false));
         queryList.add(new Query("host1", "servlet.responseTime", "15m", false));
 
-        return ok(chart.render(queryList, queryForm));
+        return ok(chart.render(queryList, queryForm, Play.application().configuration().getString("openTSDB.host")));
+        //return ok(chart.render(queryList, queryForm, "10.64.8.75:4242"));
     }
 
     public static play.mvc.Result chart() {
@@ -47,7 +49,7 @@ public class Application extends Controller {
             // TODO
         }
 
-        return ok(chart.render(queryList, queryForm));
+        return ok(chart.render(queryList, queryForm, otsdbUrl));
     }
 
     public static play.mvc.Result ajaxChart(String queryString) {

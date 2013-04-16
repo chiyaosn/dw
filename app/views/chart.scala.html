@@ -1,4 +1,4 @@
-@(queryList: List[Query], queryForm: Form[Query])
+@(queryList: List[Query], queryForm: Form[Query], otsdbUrl: String)
 
 @import helper._
 @import controllers.routes.javascript._
@@ -55,11 +55,12 @@
 
                 function getQueryString(form) {
                     var metric = $('input[name="metric"]', form).val();
-                    var metricAggregation = "avg";
+                    var metricAggregation = "avg"; // TBD: avg may not be always right
                     var host = $('input[name="host"]', form).val();
                     var timeWindow = $('input[name="timeWindow"]', form).val();
                     var chart = $('div.chart', form);
-                    var qs = "http://10.64.8.75:4242/q?start=" + timeWindow + "-ago&m=" + metricAggregation + ":" + metric;
+                    var otsdburl = form.attr("otsdburl");
+                    var qs = "http://"+otsdburl+"/q?start=" + timeWindow + "-ago&m=" + metricAggregation + ":" + metric;
 
                     if(host)
                         qs += "{host=" + host + "}";
@@ -74,7 +75,7 @@
     <div style="display: none" id="loader"><img src=@routes.Assets.at("images/loadingBar.gif") /></div>
 
     @for(query <- queryList) {
-        <form method="get" class="form-inline">
+        <form method="get" class="form-inline" otsdburl="@otsdbUrl">
             <legend></legend>
 
             <input class="input-xlarge" name="metric" type="text" autocomplete="off" placeholder="metric" value=@query.metric>
