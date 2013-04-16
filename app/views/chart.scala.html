@@ -36,7 +36,7 @@
 
                 $('button[name*="getChart"]').each(function(){
                     var _this   = $(this);
-                    _this.click(function(){
+                    _this.click(function() {
                         var form = _this.parents('form').eq(0);
                         var chart = $('div.chart', form);
                         var queryString = getQueryString(form);
@@ -71,9 +71,10 @@
     </head>
     <body>
     <h2>Welcome to Yoda Data Warehouse</h2>
+    <div style="display: none" id="loader"><img src=@routes.Assets.at("images/loadingBar.gif") /></div>
 
     @for(query <- queryList) {
-        <form action="@routes.Application.chart" method="get" class="form-inline">
+        <form method="get" class="form-inline">
             <legend></legend>
 
             <input class="input-xlarge" name="metric" type="text" autocomplete="off" placeholder="metric" value=@query.metric>

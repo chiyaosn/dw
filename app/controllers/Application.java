@@ -1,5 +1,6 @@
 package controllers;
 
+import org.apache.hadoop.hbase.KeyValue;
 import play.*;
 import play.mvc.*;
 import play.data.*;
@@ -9,15 +10,22 @@ import static play.data.Form.*;
 import views.html.*;
 import models.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
 
 public class Application extends Controller {
 
     final static Form<Query> queryForm = form(Query.class);
     static List<Query> queryList = new ArrayList<Query>();
+    static Configuration hbaseConf = HBaseConfiguration.create();
 
-    public static Result index() {
+    public static play.mvc.Result index() {
         //return ok(index.render("My new application is ready."));
 
         // show default chart
@@ -29,7 +37,7 @@ public class Application extends Controller {
         return ok(chart.render(queryList, queryForm));
     }
 
-    public static Result chart() {
+    public static play.mvc.Result chart() {
         Form<Query> filledForm = queryForm.bindFromRequest();
         Query query = filledForm.get();
         queryList.set(0, query);
@@ -42,11 +50,11 @@ public class Application extends Controller {
         return ok(chart.render(queryList, queryForm));
     }
 
-    public static Result ajaxChart(String queryString) {
+    public static play.mvc.Result ajaxChart(String queryString) {
         return ok(ajax_chart.render(queryString));
     }
 
-    public static Result javascriptRoutes() {
+    public static play.mvc.Result javascriptRoutes() {
         response().setContentType("text/javascript");
         return ok(Routes.javascriptRouter("jsRoutes",
                 // Routes
