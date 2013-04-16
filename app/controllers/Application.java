@@ -1,6 +1,5 @@
 package controllers;
 
-import org.apache.hadoop.hbase.KeyValue;
 import play.*;
 import play.mvc.*;
 import play.data.*;
@@ -10,21 +9,14 @@ import static play.data.Form.*;
 import views.html.*;
 import models.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
 
 public class Application extends Controller {
 
     final static String otsdbUrl = Play.application().configuration().getString("openTSDB.host");
     final static Form<Query> queryForm = form(Query.class);
     static List<Query> queryList = new ArrayList<Query>();
-    static Configuration hbaseConf = HBaseConfiguration.create();
 
     public static play.mvc.Result index() {
         //return ok(index.render("My new application is ready."));
