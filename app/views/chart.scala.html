@@ -98,6 +98,7 @@
     </head>
     <body>
     <h2>Welcome to Yoda Data Warehouse</h2>
+    <div style="display: none" id="loader"><img src=@routes.Assets.at("images/loadingBar.gif") /></div>
 
     @for(query <- queryList) {
         <form method="get" class="form-inline" otsdburl="@otsdbUrl">

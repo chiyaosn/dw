@@ -29,7 +29,7 @@ public class Application extends Controller {
         queryList.clear();
         queryList.add(new Query("host1", "servlet.concurrents", "15m", false));
         queryList.add(new Query("host1", "servlet.transactions", "15m", false));
-        queryList.add(new Query("host1", "servlet.responseTime", "15m", false));;
+        queryList.add(new Query("host1", "servlet.responseTime", "15m", false));
 
         return ok(chart.render(queryList, queryForm, Play.application().configuration().getString("openTSDB.host")));
         //return ok(chart.render(queryList, queryForm, "10.64.8.75:4242"));
