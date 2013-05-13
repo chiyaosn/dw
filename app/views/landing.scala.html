@@ -1,0 +1,123 @@
+@(tabList: List[String])
+
+@import helper._
+@import controllers.routes.javascript._
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Welcome to Yoda Data Warehouse</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrapSwitch.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/jquery-ui.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/chosen.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/chosen-sprite.png")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/chosen-sprite@2x.png")">
+
+    <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/jquery-ui.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/chosen.jquery.min.js")" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var tabs = $("#container-1").tabs();
+            var tabCounter = 1;
+            var tabLists = new Array();
+            tabLists[0] = "UsageAnalyze";
+            tabLists[1] = "Discovery";
+            tabLists[2] = "Orchestration";
+
+            var instanceone = new Array();
+            for(var insi = 0; insi<100;insi++){
+                instanceone[insi] = "useast"+insi;
+            }
+
+            for(var insi = 100; insi<200;insi++){
+                instanceone[insi] = "uswest"+insi;
+            }
+            for(var insi = 200; insi<300;insi++){
+                instanceone[insi] = "China"+insi;
+            }
+            for(var insi = 300; insi<400;insi++){
+                instanceone[insi] = "uk"+insi;
+            }
+
+            for(var tabi = 0; tabi < tabLists.length; tabi++){
+                //console.log(tabLists[tabi]);
+                var ul = tabs.find( "ul" );
+                $( "<li><a href='#"+tabLists[tabi]+"'>"+tabLists[tabi]+"</a></li>" ).appendTo( ul );
+
+                //tab contend
+
+                //Instance
+                $htmli = '<select name="in'+tabLists[tabi]+'" id="in'+tabLists[tabi]+'" data-placeholder="Choose an instance" multiple="multiple" class="chosenElement" tabindex="5">';
+                $htmli += '<option value="ALL">ALL</option>';
+                $htmli += '<optgroup label="EAST">';
+                for(var insi = 0; insi<100;insi++){
+                    $htmli += '<option value="'+instanceone[insi]+'">'+instanceone[insi]+'</option>';
+                }
+                $htmli += '<optgroup label="WEST">';
+                for(var insi = 100; insi<200;insi++){
+                    $htmli += '<option value="'+instanceone[insi]+'">'+instanceone[insi]+'</option>';
+                }
+                $htmli += '<optgroup label="CHINA">';
+                for(var insi = 200; insi<300;insi++){
+                    $htmli += '<option value="'+instanceone[insi]+'">'+instanceone[insi]+'</option>';
+                }
+                $htmli += '<optgroup label="UK">';
+                for(var insi = 300; insi<400;insi++){
+                    $htmli += '<option value="'+instanceone[insi]+'">'+instanceone[insi]+'</option>';
+                }
+                $htmli += '<optgroup label="UK">';
+                $htmli += '</select>';
+
+                //Reading
+                $htmlr = '<select name="in'+tabLists[tabi]+'" id="reading'+tabLists[tabi]+'" data-placeholder="Choose an Reading" multiple="multiple" class="chosenElement" tabindex="5">';
+                $htmlr += '<option value="ALL">ALL</option>';
+                $htmlr += '<option value="ALL">sum</option>';
+                $htmlr += '<option value="ALL">avg</option>';
+                $htmlr += '<option value="ALL">count</option>';
+                $htmlr += '</select>';
+
+                //
+                $( "<div id='"+tabLists[tabi]+"'>Instance:"+$htmli+"</p>Reading:"+$htmlr+"</div>").appendTo( tabs );
+
+                tabs.tabs( "refresh" );
+            }
+            if(tabLists.length > 1)
+                tabs.tabs( "select",0 );
+
+            for(var tabi = 0; tabi < tabLists.length; tabi++){
+                $("#in"+tabLists[tabi]).chosen();
+                $("#reading"+tabLists[tabi]).chosen();
+            }
+
+
+            $html2 = '<select name="items" id="items" multiple="multiple" class="chosenElement" tabindex="5">';
+            $html2 += '<option value="ALL">ALL</option>';
+            $html2 += '<option value="foo">foo</option>';
+            $html2 += '<option value="bar">bar</option>';
+            $html2 += '<option value="baz">baz</option>';
+            $html2 += '<option value="qux">qux</option>';
+            $html2 += '</select>';
+            $('.modal-body').html($html2);
+
+            $('#items').chosen();
+
+        });
+    </script>
+
+
+</head>
+<body>
+    <div id="container-1">
+        <ul>
+        </ul>
+
+    </div>
+    <div>
+</body>
+</html>

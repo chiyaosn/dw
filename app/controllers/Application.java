@@ -21,14 +21,19 @@ public class Application extends Controller {
     public static play.mvc.Result index() {
         //return ok(index.render("My new application is ready."));
 
+        List<String> tabl1 = new ArrayList<String>();
+
+        return ok(landing.render(tabl1));
+        /*
         // show default chart
         queryList.clear();
         queryList.add(new Query("host1", "servlet.concurrents", "15m", false));
         queryList.add(new Query("host1", "servlet.transactions", "15m", false));
-        queryList.add(new Query("host1", "servlet.responseTime", "15m", false));
+        queryList.add(new Query("host1", "servlet.responseTime", "15m", false));;
 
         return ok(chart.render(queryList, queryForm, Play.application().configuration().getString("openTSDB.host")));
         //return ok(chart.render(queryList, queryForm, "10.64.8.75:4242"));
+        */
     }
 
     public static play.mvc.Result chart() {

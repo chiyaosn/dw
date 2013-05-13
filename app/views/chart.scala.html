@@ -13,6 +13,7 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrapSwitch.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/jquery.idTabs.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/bootstrap.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/bootstrapSwitch.js")" type="text/javascript"></script>
         <script type="text/javascript" src="@routes.Application.javascriptRoutes"></script>
@@ -53,6 +54,31 @@
                     });
                 });
 
+                $('input[name*="autoRefresh"]').each(function(){
+                    var _this2 = $(this);
+                    var boxchecked = false;
+                    _this2.click(function(){
+                        boxchecked = !  boxchecked;
+                    });
+                    window.setInterval(function(){
+                        if(boxchecked){
+                            //setTimeout("location.reload(true);",1000);
+                            var form2 = _this2.parents('form').eq(0);
+                            var chart2 = $('div.chart',form2);
+                            var queryString2 = getQueryString(form2);
+                            jsRoutes.controllers.Application.ajaxChart(queryString2).ajax({
+                                success: function(data){
+                                    chart2.html(data);
+                                },
+                                error: function(){
+                                    alert("Error!!")
+                                }
+                             });
+                        }
+                     },3000);
+
+                });
+
                 function getQueryString(form) {
                     var metric = $('input[name="metric"]', form).val();
                     var metricAggregation = "avg"; // TBD: avg may not be always right
@@ -72,7 +98,6 @@
     </head>
     <body>
     <h2>Welcome to Yoda Data Warehouse</h2>
-    <div style="display: none" id="loader"><img src=@routes.Assets.at("images/loadingBar.gif") /></div>
 
     @for(query <- queryList) {
         <form method="get" class="form-inline" otsdburl="@otsdbUrl">
@@ -90,9 +115,8 @@
             </div>
             <input class="input-small" name="timeWindow" type="hidden" autocomplete="off" placeholder="timeWindow" value=@query.timeWindow>
             <label style="margin-left: 10px">Auto Refresh:</label>
-            <div style="margin-right: 10px" class="switch switch-small" data-on="success">
-                <input type="checkbox" name="autoRefresh" value=@query.autoRefresh>
-            </div>
+            <input name="autoRefresh" type="checkbox" value="@query.autoRefresh" >
+
             <button name="getChart" type="button" class="btn btn-primary">Get chart</button>
             </br>
             </br>
