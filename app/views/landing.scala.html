@@ -1,0 +1,269 @@
+@(tabList: List[String], otsdbUrl: String)
+
+@import helper._
+@import controllers.routes.javascript._
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8" />
+    <title>Welcome to Yoda Data Warehouse</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrapSwitch.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/jquery-ui.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/chosen.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/chosen-sprite.png")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/chosen-sprite@2x.png")">
+    <script type="text/javascript" src="@routes.Application.javascriptRoutes"></script>
+
+    <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/jquery-ui.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/chosen.jquery.min.js")" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var dropdowntree = {};
+            var tabs = $("#container-1").tabs();
+            var tabCounter = 1;
+            var qinstance = "";
+            var qreading = "";
+            var qkeys = "";
+            var qnamespace = "";
+            $.getJSON("http://localhost:9000/metadata_namespaces")
+                .done(function(data){
+                    var tabLists = data;
+
+                    for(var tabi = 0; tabi < tabLists.length; tabi++){
+
+                        var ul = tabs.find( "ul" );
+                        $( "<li><a href='#tabLists"+tabLists[tabi]+"'>"+tabLists[tabi]+"</a></li>" ).appendTo( ul );
+
+                        //tab contend
+                        //Instance
+                        $htmli = '<select name="intabLists'+tabLists[tabi]+'" id="intabLists'+tabLists[tabi]+'" data-placeholder="Choose an instance" multiple="multiple" class="chosenElement" tabindex="5">';
+                        $htmli += '<option value="ALL">ALL</option>';
+
+                        $htmli += '</select>';
+
+                        //Reading
+                        $htmlr = '<select name="readingtabLists'+tabLists[tabi]+'" id="readingtabLists'+tabLists[tabi]+'" data-placeholder="Choose an Reading" multiple="multiple" class="chosenElement" tabindex="5">';
+                        $htmlr += '<option value="ALL">ALL</option>';
+                        $htmlr += '<option value="sum">sum</option>';
+                        $htmlr += '<option value="avg">avg</option>';
+                        $htmlr += '<option value="count">count</option>';
+                        $htmlr += '</select>';
+                        fc = "#readingtabLists"+tabLists[tabi];
+
+                        $tabcontent = "Instance:"+$htmli+"</p>Reading:"+$htmlr+"</p>";
+
+                        //other dropdowns
+                        function genDrops(tabi){
+
+                            // get the content of read, used by chart query
+                            $("#readingtabLists"+tabLists[tabi]).change(function(event){ // e.g: readingtabListsdiscovery
+                                var selectedstr = new Array();
+                                $('option:selected', this).each(function(){
+                                    selectedstr.push($(this).text());
+                                });
+                                readcontent = "";
+                                for(var readi = 0; readi<selectedstr.length;readi++){
+                                    readcontent += selectedstr[readi];
+                                    if(readi != selectedstr.length-1){
+                                        readcontent += "|";
+                                    }
+                                }
+                                qreading = readcontent;
+                            });
+
+                            $.getJSON("http://localhost:9000/metadata_namespace_keys?nameSpace="+tabLists[tabi])
+                            .done(function(data){
+                                var otherdrops = data;
+                                $dropshtml = "";// "<div id= 'tabLists"+tabLists[tabi]+"dropdown'>";
+                                for(var dropsi = 0;dropsi<otherdrops.length;dropsi++){
+                                    $dropshtml += otherdrops[dropsi]+":";
+                                    $dropshtml += '<select disabled name="tabLists'+tabLists[tabi]+'drops'+otherdrops[dropsi]+'" id="tabLists'+tabLists[tabi]+'drops'+otherdrops[dropsi]+'" data-placeholder="N/A, Choose the instance first" multiple="multiple" class="chosenElement" tabindex="5">';
+                                    $dropshtml +='<option value="ALL">ALL</option>';
+                                    $dropshtml += "</select> ";
+
+                                    //dropdowns change when select in instane
+                                    $("#intabLists"+tabLists[tabi]).change({ns:tabLists[tabi],key:otherdrops[dropsi]},function(event){
+                                        var selectedstr = new Array();
+                                        $('option:selected', this).each(function(){
+                                            selectedstr.push($(this).text());
+                                        });
+                                        instanstr = "";
+
+                                        for(var insi = 0;insi<selectedstr.length;insi++){
+                                            instanstr += selectedstr[insi];
+                                            if(insi != selectedstr.length-1){
+                                                instanstr += "|";
+                                            }
+                                        }
+
+                                        qinstance = instanstr;
+                                        namespace = event.data.ns;
+                                        key = event.data.key;
+                                        var dropele=document.getElementById("tabLists"+namespace+"drops"+key);
+                                        if(instanstr == ""){
+                                            $(dropele).attr('disabled', true);
+                                            $(dropele).find('option').remove().end();
+                                            $(dropele).attr('data-placeholder',"N/A, Choose the instance first");
+                                            $(dropele).trigger("liszt:updated");
+                                        }else{
+                                            genDropContend(namespace,key,instanstr);
+                                        }
+                                    });
+                                }
+                                //var newNode = document.createElement('div');
+                                //newNode.innerHTML = $dropshtml;
+                                //document.getElementById("tabLists"+tabLists[tabi]).appendChild(newNode);
+
+                                var e = $("<div>", {name: 'dropstabLists' + tabLists[tabi], drops: otherdrops.toString()});
+                                e.html($dropshtml);
+                                $("#tabLists"+tabLists[tabi]).append(e);
+                                $(".chosenElement").chosen();
+
+                            });
+                        }
+
+                        $( "<div name='tabLists"+tabLists[tabi]+"' id='tabLists"+tabLists[tabi]+"'>"+$tabcontent+"</div>").appendTo( tabs );
+                        tabs.tabs( "refresh" );
+                        genDrops(tabi);
+                    }
+                    //when switch tabs, generated the instance dropdown
+                    $("#container-1").tabs({
+                        select:function(event,ui){
+                            qinstance = "";
+                            qreading  = "";
+                            qkeys     = "";
+                            var tabname = $(ui.tab).text();
+                            qnamespace = tabname;
+                            var x=document.getElementById("intabLists"+tabname);
+                            $.getJSON("http://localhost:9000/metadata_namespace_instances?nameSpace="+tabname).done(function(data){
+                                $(x).find('option').remove().end().append('<option value="ALL">ALL</option>');
+                                for(var ini =0;ini<data.length;ini++){
+                                    $(x).append("<option value='"+data[ini]+"'>"+data[ini]+"</option>");
+                                }
+                                $(x).trigger("liszt:updated");
+                            });
+                        }
+                    });
+
+                    function genDropContend(ns, key, ins){
+                        $.getJSON("http://localhost:9000/metadata_namespace_key_values?nameSpace="+ns+"&key="+key+"&instanceId="+ins).done(function(data){
+                            // e.g for other dropdowns: id = tabListsusageAnalyticsdropsapplication
+                            var dropele=document.getElementById("tabLists"+ns+"drops"+key);
+                            $(dropele).find('option').remove().end().append('<option value="ALL">ALL</option>');
+                            $(dropele).attr('disabled', false);
+                            $(dropele).attr('data-placeholder',"Choose a "+key);
+                            for(var coni =0;coni<data.length;coni++){
+                                $(dropele).append("<option value='"+data[coni]+"'>"+data[coni]+"</option>");
+                            }
+                            $(dropele).trigger("liszt:updated");
+
+                            //get the content of keys, used for chart query
+                            $("#tabLists"+ns+"drops"+key).change({namesp:ns, dropkey:key},function(event){
+                                var selectedstr = new Array();
+                                $('option:selected', this).each(function(){
+                                    selectedstr.push($(this).text());
+                                });
+                                keycontent = "";
+                                for(var keyi = 0; keyi<selectedstr.length;keyi++){
+                                    keycontent += selectedstr[keyi];
+                                    if(keyi != selectedstr.length-1){
+                                        keycontent += "|";
+                                    }
+                                }
+                                if(qkeys == ""){
+                                    qkeys = event.data.dropkey + "=" + keycontent;
+                                }else{
+                                    qkeys += "&" + event.data.dropkey + "=" + keycontent;
+                                }
+                            });
+                        });
+                    }
+
+                    if(tabLists.length >= 1)
+                        tabs.tabs( "select",0 );
+
+                    for(var tabi = 0; tabi < tabLists.length; tabi++){
+                        $("#intabLists"+tabLists[tabi]).chosen();
+                        $("#readingtabLists"+tabLists[tabi]).chosen();
+                    }
+                    //console.log(dropdowntree);
+                });
+
+            $('button[name*="getChart"]').each(function(){
+                var _this   = $(this);
+                _this.click(function() {
+                    var div = _this.parents('div').eq(0);
+                    var chart = $('div.chart', div);
+                    var queryString = getQueryString(div, qnamespace);
+                    //var queryString = "http://10.64.8.75:4242/q?start=2013/05/01-12:00:00&end=2013/05/03-12:00:00&m=sum:servlet.concurrents%7Bhost=host1%7Chost2%7D&o=";
+
+                    jsRoutes.controllers.Application.ajaxChart(queryString).ajax({
+                        success: function(data) {
+                            chart.html(data);
+                        },
+                        error: function() {
+                            alert("Error!")
+                        }
+                    })
+                });
+            });
+
+            function getQueryString(div, nameSpace) {
+                var instances = $('select[name="intabLists' + nameSpace + '"]', div).chosen().val();
+                var readings = $('select[name="readingtabLists' + nameSpace + '"]', div).chosen().val();
+                var drops = $('div[name="dropstabLists' + nameSpace + '"]', div).attr("drops").split(",");
+                console.log(div);
+                console.log(instances);
+                console.log(readings);
+                console.log(drops);
+                var dropsStatement = "";
+                for(var i = 0; i < drops.length; ++i) {
+                    var d = $('select[name="tabLists' + nameSpace + 'drops' + drops[i] + '"]', div).chosen().val();
+                    if(d == null)
+                        continue;
+                    if(dropsStatement == "")
+                        dropsStatement += "{";
+                    else
+                        dropsStatement += ",";
+                    dropsStatement += drops[i] + "=" + d.join("|");
+                }
+                if(dropsStatement != "")
+                    dropsStatement += "}";
+                console.log(dropsStatement);
+
+                var metric = nameSpace + "." + instances[0] + "." + readings[0];
+                var metricAggregation = "avg"; // TBD: avg may not be always right
+                var timeWindow = "1h";
+                var chart = $('div.chart', div);
+                var otsdburl = "@otsdbUrl";
+                var qs = "http://"+otsdburl+"/q?start=" + timeWindow + "-ago&m=" + metricAggregation + ":" + metric;
+
+                if(dropsStatement != "")
+                    qs += dropsStatement;
+
+                return qs;
+            }
+        });
+    </script>
+
+
+</head>
+<body>
+    <div id="container-1">
+        <ul>
+        </ul>
+        </br>
+        <button name="getChart" type="button" class="btn btn-primary">Get chart</button>
+        </br>
+        </br>
+        <div class="chart">
+        </div>
+    </div>
+</body>
+</html>

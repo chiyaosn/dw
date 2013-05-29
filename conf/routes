@@ -13,3 +13,12 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 GET     /chart                      controllers.Application.chart()
 GET     /ajaxChart                  controllers.Application.ajaxChart(qs: String)
+
+# Metadata lookup
+GET     /metadata_namespaces             controllers.Application.metadataQueryNameSpaces()
+GET     /metadata_namespace_instances    controllers.Application.metadataQueryNameSpaceInstances()
+GET     /metadata_namespace_keys         controllers.Application.metadataQueryNameSpaceKeys()
+GET     /metadata_namespace_key_values   controllers.Application.metadataQueryNameSpaceKeyValues()
+
+# receive file upload
+POST    /upload                       controllers.Application.upload()
