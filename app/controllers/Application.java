@@ -1,5 +1,6 @@
 package controllers;
 
+import com.servicenow.bigdata.metadata.DWConfig;
 import play.*;
 import play.mvc.*;
 import play.data.*;
@@ -36,7 +37,7 @@ public class Application extends Controller {
     public static play.mvc.Result index() {
         //return ok(index.render("My new application is ready."));
         List<String> tabl1 = new ArrayList<String>();
-        return ok(landing.render(tabl1, Play.application().configuration().getString("openTSDB.host")));
+        return ok(landing.render(tabl1, otsdbUrl));
         /*
         // show default chart
         queryList.clear();
@@ -49,7 +50,7 @@ public class Application extends Controller {
         //return ok(chart.render(queryList, queryForm, "10.64.8.75:4242"));
     }
 
-    public static play.mvc.Result upload() {
+    public static Result upload() {
 	//File file = request().body().asRaw().asFile();
         //System.out.println(file.getPath()+" "+file.length());
 	MultipartFormData body = request().body().asMultipartFormData();
@@ -68,7 +69,7 @@ public class Application extends Controller {
 	}
     }
 
-    public static play.mvc.Result chart() {
+    public static Result chart() {
         Form<Query> filledForm = queryForm.bindFromRequest();
         Query query = filledForm.get();
         queryList.set(0, query);
@@ -81,11 +82,11 @@ public class Application extends Controller {
         return ok(chart.render(queryList, queryForm, otsdbUrl));
     }
 
-    public static play.mvc.Result ajaxChart(String queryString) {
+    public static Result ajaxChart(String queryString) {
         return ok(ajax_chart.render(queryString));
     }
 
-    public static play.mvc.Result javascriptRoutes() {
+    public static Result javascriptRoutes() {
         response().setContentType("text/javascript");
         return ok(Routes.javascriptRouter("jsRoutes",
                 // Routes
@@ -93,7 +94,7 @@ public class Application extends Controller {
         ));
     }
 
-    public static play.mvc.Result metadataQueryNameSpaces() {
+    public static Result metadataQueryNameSpaces() {
         org.codehaus.jackson.JsonNode result = null;
         try {
             Collection<String> nameSpaces = MetaDataRepository.getNameSpaces();
@@ -105,6 +106,49 @@ public class Application extends Controller {
         return ok(result);
     }
 
+    public static Result metadataQueryMenus() {
+        org.codehaus.jackson.JsonNode result = null;
+        try {
+            Collection<String> menus = MetaDataRepository.getAllMenus(DWConfig.MONITORING);
+            // menu is of the form label::name
+            result = Json.toJson(menus.toArray());
+        } catch (Exception e) {
+            result = Json.toJson("");  // empty string for no result
+            // TODO: use status
+        }
+        return ok(result);
+    }
+
+
+    public static Result metadataQueryMenuItems(String menuName) {
+        org.codehaus.jackson.JsonNode result = null;
+        try {
+            Collection<String> menuItems = MetaDataRepository.getEltsOfType(DWConfig.MONITORING, menuName);
+            result = Json.toJson(menuItems.toArray());
+        } catch (IOException e) {
+            result = Json.toJson("");  // empty string for no result
+            // TODO: use status
+        }
+        return ok(result);
+    }
+
+
+    public static Result metadataQueryDependentMenuItems(String menuName, String parentMenu, String parentMenuItem) {
+        org.codehaus.jackson.JsonNode result = null;
+        try {
+            Collection<String> menuItems = MetaDataRepository.getDependentElts(DWConfig.MONITORING, menuName, parentMenuItem, parentMenu);
+            result = Json.toJson(menuItems.toArray());
+        } catch (IOException e) {
+            result = Json.toJson("");  // empty string for no result
+            // TODO: use status
+        }
+        return ok(result);
+    }
+
+
+
+
+    /*
     public static play.mvc.Result metadataQueryNameSpaceInstances() {
         MetaDataQuery mdQuery = mdQueryForm.bindFromRequest().get();
         org.codehaus.jackson.JsonNode result = null;
@@ -164,4 +208,5 @@ public class Application extends Controller {
         return ok(result);
     }
 
+    */
 }

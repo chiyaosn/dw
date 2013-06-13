@@ -15,10 +15,10 @@ GET     /chart                      controllers.Application.chart()
 GET     /ajaxChart                  controllers.Application.ajaxChart(qs: String)
 
 # Metadata lookup
-GET     /metadata_namespaces             controllers.Application.metadataQueryNameSpaces()
-GET     /metadata_namespace_instances    controllers.Application.metadataQueryNameSpaceInstances()
-GET     /metadata_namespace_keys         controllers.Application.metadataQueryNameSpaceKeys()
-GET     /metadata_namespace_key_values   controllers.Application.metadataQueryNameSpaceKeyValues()
+GET     /metadata_namespaces            controllers.Application.metadataQueryNameSpaces()
+GET     /metadata_menus                 controllers.Application.metadataQueryMenus()
+GET     /metadata_menu_items            controllers.Application.metadataQueryMenuItems(menuName: String)
+GET     /metadata_dependent_menu_items  controllers.Application.metadataQueryDependentMenuItems(menuName: String, parentMenu: String, parentMenuItem: String)
 
 # receive file upload
 POST    /upload                       controllers.Application.upload()
